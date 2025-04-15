@@ -50,6 +50,46 @@ Use git to obtain the source code of Soufflé.
 
 Build instructions can be found [here](https://souffle-lang.github.io/build).
 
+### Using Nix/NixOS
+
+Soufflé provides Nix support for easy installation on NixOS and other systems with Nix:
+
+```bash
+# Build the package (version 2.4.1)
+nix build
+
+# Enter a development shell with all dependencies
+nix develop
+```
+
+For usage in your own NixOS configuration, add Soufflé to your flake.nix:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    souffle.url = "github:souffle-lang/souffle";
+    souffle.inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  outputs = { nixpkgs, souffle, ... }: {
+    # Example for a NixOS system
+    nixosConfigurations.yoursystem = nixpkgs.lib.nixosSystem {
+      # ...your config...
+      modules = [
+        souffle.nixosModules.default
+        { 
+          services.souffle.enable = true;
+          environment.systemPackages = [ souffle.packages.x86_64-linux.default ];
+        }
+      ];
+    };
+  };
+}
+```
+
+See [nix-souffle/README.md](nix-souffle/README.md) for more details.
+
 ## Legacy code
 
 If you have written code for an older version of Souffle, please use the command line flag `--legacy`.
